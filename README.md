@@ -1,9 +1,9 @@
-# Hospital Management System — SQL Server Data Analyst Portfolio Project
+# Hospital Management System — SQL Server + Power BI Data Analyst Portfolio Project
 
-A self-contained hospital analytics database built in SQL Server Management Studio (SSMS).
-Designed for a data-analyst interview: the schema is deliberately lean (8 tables) so the
-bulk of the project is the analysis layer — joins, CTEs, window functions, views, and a
-reusable reporting layer — not database plumbing.
+A self-contained hospital analytics project: a normalized SQL Server database built in
+SSMS, plus a Power BI dashboard on top of it. Designed for a data-analyst interview —
+the schema is deliberately lean (8 tables) so the real depth sits in the analysis layer:
+joins, CTEs, window functions, a reusable reporting layer, and an interactive dashboard.
 
 ## How to run it
 
@@ -17,7 +17,16 @@ Open each file in SSMS and execute in this order:
 
 Each script is idempotent (drops/recreates objects), so you can re-run the whole thing from scratch at any time.
 
-## Entity relationship overview
+Then in Power BI Desktop: **Get Data → SQL Server** → point at `HospitalManagementDB` →
+import the views (`vw_MonthlyDepartmentRevenue`, `vw_DoctorPerformance`) plus the core tables.
+
+## Data model
+
+![Power BI data model showing relationships between all 8 tables and the two reporting views](./screenshots/data_model.png)
+
+Power BI auto-detected the FK relationships from SQL Server. Four DAX measures sit
+alongside the tables: `Total Revenue`, `No-Show Rate %`, `Occupancy Rate %`, and
+`Avg Length of Stay (Days)`.
 
 ```
 Departments 1---* Doctors
@@ -28,11 +37,6 @@ Admissions  *---1 Rooms
 Admissions  *---1 Diagnoses
 Billing     *---1 Patients   (and optionally *---1 Admissions or *---1 Appointments)
 ```
-
-Draw this out in SSMS's **Database Diagrams** feature (right-click Database Diagrams →
-New Database Diagram → add all 8 tables) — SSMS will auto-lay-out the FK relationships,
-and having that diagram ready to screen-share is worth more in the interview than
-describing it verbally.
 
 ## The 8 tables
 
@@ -46,6 +50,22 @@ describing it verbally.
 | Appointments | Outpatient visits — Scheduled/Completed/NoShow/Cancelled |
 | Admissions | Inpatient stays — links patient, doctor, room, diagnosis |
 | Billing | Revenue events, tied to either an appointment or an admission |
+
+## Power BI dashboard
+
+**Page 1 — Executive overview**
+
+![Hospital Management System dashboard overview with KPI cards, monthly revenue trend, and revenue by department](./screenshots/dashboard_overview.png)
+
+KPI cards for Total Revenue, total appointment volume, and No-Show Rate %, a monthly
+revenue trend line, and a revenue-by-department comparison.
+
+**Page 2 — Doctor & billing detail**
+
+![Doctor revenue table with department, doctor, and bill-date slicers](./screenshots/dashboard_doctor_detail.png)
+
+A doctor-level revenue table alongside Department, Doctor Name, and Bill Date slicers —
+this is the page to click through live in an interview to show the filtering actually works.
 
 ## Business questions answered (see `03_analytical_queries.sql`)
 
@@ -78,3 +98,4 @@ describing it verbally.
   (`NEWID()`/`CHECKSUM`), so a few edge cases (e.g. a diagnosis with only 1-2 cases)
   will look noisy — worth mentioning proactively, since real analyst work involves
   flagging exactly this kind of small-sample noise.
+
